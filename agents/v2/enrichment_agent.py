@@ -14,10 +14,16 @@ class EnrichmentAgent(BaseAgent):
     def enrich(self, event_description):
         logger.info(f"[EnrichmentAgent] Fetching external context for: {event_description}")
         
-        # 1. Search News
-        search_results = self.apify.run_actor("apify/google-search-scraper", {"queries": [f"sentiment and news on {event_description}"]})
+        if self.llm.mock_mode:
+            return {
+                "analysis": "Mock analysis: Sentiment is positive.",
+                "raw_results": [{"title": "Mock Result"}]
+            }
+
+        # 1. Search News (queries must be a string)
+        search_results = self.apify.run_actor("apify/google-search-scraper", {"queries": f"sentiment and news on {event_description}"})
         
-        # 2. Extract Sentiment (Mock logic for demonstration)
+        # 2. Extract Sentiment
         analysis = self.run(f"Analyze the sentiment of these search results for the event '{event_description}': {search_results[:3]}")
         
         return {

@@ -24,16 +24,17 @@ class ApifyWrapper:
             return [{"title": "NBA Market Trends", "url": "https://kalshi.com/nba"}]
         
         run = self.client.actor(actor_id).call(run_input=run_input)
-        run = self.client.actor(actor_id).call(run_input=run_input)
         return list(self.client.dataset(run["defaultDatasetId"]).iterate_items())
 
     def search_polymarket_leaderboard(self, time_range="all", leaderboard_type="profit"):
         """
         Uses saswave/polymarket-leaderboard-scraper
+        Fixed input schema to avoid 'NoneType' split errors
         """
         run_input = {
-            "timeRange": time_range,
-            "type": leaderboard_type
+            "period": time_range,
+            "type": leaderboard_type,
+            "leaderboard_section": leaderboard_type  # Common field for this actor
         }
         return self.run_actor("saswave/polymarket-leaderboard-scraper", run_input)
 

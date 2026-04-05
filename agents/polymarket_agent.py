@@ -19,14 +19,16 @@ class PolymarketAgent(BaseAgent):
         traders = self.apify.search_polymarket_leaderboard(time_range, leaderboard_type)
         
         # Process and summarize
+        if not traders:
+            return "No traders discovered on Polymarket at this time.", []
+            
         summary = f"Discovered {len(traders)} traders on Polymarket."
-        if traders:
-            top_3 = traders[:3]
-            summary += "\nTop traders found:\n"
-            for t in top_3:
-                summary += f"- {t.get('username') or t.get('proxy')}: ${t.get('profit', 0):,.2f} profit\n"
+        top_3 = traders[:3]
+        summary += "\nTop traders found:\n"
+        for t in top_3:
+            summary += f"- {t.get('username') or t.get('proxy')}: ${t.get('profit', 0):,.2f} profit\n"
         
         # Learning Loop: Learn the discovery task
-        self.learn("Discovery Task", f"Used saswave/polymarket-leaderboard-scraper with time_range={time_range} and type={leaderboard_type}.")
+        self.learn("Discovery Task", f"Used saswave/polymarket-leaderboard-scraper with time_range={time_range} and type={leaderboard_type}.", "Success (Scraper call finished)")
         
         return summary, traders
