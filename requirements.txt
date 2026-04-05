@@ -1,0 +1,13 @@
+apify-client
+openai
+python-dotenv
+sqlalchemy
+pydantic
+requests
+loguru
+faiss-cpu
+sentence-transformers
+fastapi
+uvicorn
+numpy
+pandas
