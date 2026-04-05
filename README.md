@@ -13,14 +13,42 @@ Retail traders often follow "whales" based on raw profit alone, which leads to h
 - **The Gap**: Most bots lack "memory" and don't learn from prior market outcomes.
 - **The Solution**: An agentic system that ranks traders by multifaceted metrics and uses RAG (Retrieval Augmented Generation) to verify past performance against real-world sentiment.
 
-## 🛠 Methodology
-The system follows a **Modular Intelligence** approach:
-1. **Discovery**: Scraping leaderboard data from Polymarket and Kalshi via Apify.
-2. **Analysis**: Calculating ROI, risk scores, and streak consistency per wallet.
-3. **Niche Mapping**: LLM-based classification of trader expertise based on historical trade titles.
-4. **Enrichment**: Web scraping real-time news to provide market context for current events.
-5. **Decision**: A RAG-based ensemble that retrieves the most similar "winning profiles" for a given user query.
-6. **Learning**: A feedback loop that verifies market outcomes and updates trader reliability scores in a persistent FAISS vector store.
+## 🛠 Methodology: The Multi-Agent Intelligence Flow
+
+The system operates as a collaborative "think-tank" of specialized AI agents, each handling a critical part of the intelligence pipeline:
+
+### 1. 🔍 Discovery Layer (`PolymarketAgent` & `KalshiAgent`)
+*   **Role**: These agents act as the "scouts."
+*   **Operation**: Using Apify actors, they scrape real-time leaderboards and trade histories from decentralized and centralized prediction markets.
+*   **Output**: A raw pool of high-performing wallets and recent market activity.
+
+### 2. 📊 Quantitative Analysis (`AnalyzerAgent`)
+*   **Role**: The "Math Expert."
+*   **Operation**: It processes the raw trade data to compute advanced financial metrics:
+    *   **ROI %**: Total return over investment.
+    *   **Win Rate**: Frequency of correct predictions.
+    *   **Consistency Score**: Stability of performance over time (penalizing "one-hit wonders").
+    *   **Risk Score**: Volatility of the trader's positions.
+
+### 3. 🎯 Niche Mapping (`NicheAgent`)
+*   **Role**: The "Domain Classifier."
+*   **Operation**: It uses LLM intelligence to analyze trade titles and descriptions. It categorizes traders into specific niches such as **NBA**, **U.S. Politics**, **Crypto Trends**, or **Weather Hedge**.
+*   **Output**: A tagged profile linking a wallet to its area of highest expertise.
+
+### 4. 🌍 Real-Time Enrichment (`EnrichmentAgent`)
+*   **Role**: The "Context Researcher."
+*   **Operation**: While other agents look at the *past*, this agent looks at the *now*. It scrapes news and social sentiment (via Apify) to understand the current world events related to a trade.
+*   **Output**: A context summary (e.g., "NBA stars resting tonight" or "New poll results in swing states").
+
+### 5. 🧠 Synthesis & Decision (`DecisionAgent`)
+*   **Role**: The "Portfolio Manager" (The Brain).
+*   **Operation**: It synthesizes data from all previous agents. It uses **RAG (Retrieval Augmented Generation)** to query the FAISS vector store for traders whose past success matches the current user's request.
+*   **Output**: A structured Intelligence Report with a ranked list of top 3 traders, confidence scores, and a final "Why" explanation.
+
+### 6. 🔁 Closed-Loop Learning (`LearningAgent`)
+*   **Role**: The "Quality Control" (Self-Improvement).
+*   **Operation**: After a market closes, this agent compares the "predicted outcome" vs. the "actual outcome." It uses **Hermes Reflection** to update the reliability scores of traders in the database.
+*   **Output**: A self-healing intelligence layer that becomes more accurate with every market event.
 
 ## 🏗 System Architecture
 ```mermaid
