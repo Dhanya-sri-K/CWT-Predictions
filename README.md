@@ -13,42 +13,30 @@ Retail traders often follow "whales" based on raw profit alone, which leads to h
 - **The Gap**: Most bots lack "memory" and don't learn from prior market outcomes.
 - **The Solution**: An agentic system that ranks traders by multifaceted metrics and uses RAG (Retrieval Augmented Generation) to verify past performance against real-world sentiment.
 
-## 🛠 Methodology: The Multi-Agent Intelligence Flow
+## 🏗️ Methodology: The Multi-Agent Intelligence Flow
 
 The system operates as a collaborative "think-tank" of specialized AI agents, each handling a critical part of the intelligence pipeline:
 
-### 1. Discovery Layer (`PolymarketAgent` & `KalshiAgent`)
+### 1. Discovery Layer (Agentic Fallback Strategy)
 *   **Role**: These agents act as the "scouts."
-*   **Operation**: Using Apify actors, they scrape real-time leaderboards and trade histories from decentralized and centralized prediction markets.
-*   **Output**: A raw pool of high-performing wallets and recent market activity.
+*   **Primary**: Scrapes real-time leaderboards using Apify actors.
+*   **Agentic Fallback**: If a scraper is blocked or outdated, the system automatically switches to **Google Search + LLM Extraction** to find top traders, ensuring "alpha" is never lost.
 
 ### 2.  Quantitative Analysis (`AnalyzerAgent`)
 *   **Role**: The "Math Expert."
-*   **Operation**: It processes the raw trade data to compute advanced financial metrics:
-    *   **ROI %**: Total return over investment.
-    *   **Win Rate**: Frequency of correct predictions.
-    *   **Consistency Score**: Stability of performance over time (penalizing "one-hit wonders").
-    *   **Risk Score**: Volatility of the trader's positions.
+*   **Operation**: Processes raw trade data to compute ROI %, Win Rate, Consistency, and Risk-adjusted returns.
 
-### 3.  Niche Mapping (`NicheAgent`)
-*   **Role**: The "Domain Classifier."
-*   **Operation**: It uses LLM intelligence to analyze trade titles and descriptions. It categorizes traders into specific niches such as **NBA**, **U.S. Politics**, **Crypto Trends**, or **Weather Hedge**.
-*   **Output**: A tagged profile linking a wallet to its area of highest expertise.
-
-### 4.  Real-Time Enrichment (`EnrichmentAgent`)
+### 3.  Real-Time Enrichment (`EnrichmentAgent`)
 *   **Role**: The "Context Researcher."
-*   **Operation**: While other agents look at the *past*, this agent looks at the *now*. It scrapes news and social sentiment (via Apify) to understand the current world events related to a trade.
-*   **Output**: A context summary (e.g., "NBA stars resting tonight" or "New poll results in swing states").
+*   **Operation**: Performs a live Google Search for the latest news/rumors (e.g., "NBA stars resting today") to contextualize the trade advice.
 
-### 5.  Synthesis & Decision (`DecisionAgent`)
+### 4.  Synthesis & Decision (`DecisionAgent`)
 *   **Role**: The "Portfolio Manager" (The Brain).
-*   **Operation**: It synthesizes data from all previous agents. It uses **RAG (Retrieval Augmented Generation)** to query the FAISS vector store for traders whose past success matches the current user's request.
-*   **Output**: A structured Intelligence Report with a ranked list of top 3 traders, confidence scores, and a final "Why" explanation.
+*   **Operation**: Synthesizes all data into a structured **JSON Intelligence Report**. It uses **Dynamic Model Routing** to select the best available free LLM on OpenRouter.
 
-### 6.  Closed-Loop Learning (`LearningAgent`)
+### 5.  Closed-Loop Learning (`LearningAgent`)
 *   **Role**: The "Quality Control" (Self-Improvement).
-*   **Operation**: After a market closes, this agent compares the "predicted outcome" vs. the "actual outcome." It uses **Hermes Reflection** to update the reliability scores of traders in the database.
-*   **Output**: A self-healing intelligence layer that becomes more accurate with every market event.
+*   **Operation**: Uses **Hermes Reflection** to compare predictions vs. actual outcomes, saving successful patterns as persistent "Skills."
 
 ##  System Architecture
 ```mermaid
@@ -103,9 +91,9 @@ MOCK_MODE=true  # Set to false to use real API data
 ### 4. Start the Intelligence Engine
 ```bash
 # Start the API and Dashboard
-python -m uvicorn api.routes:app --reload
+python -m api.routes
 ```
-- **Dashboard**: The UI will automatically open at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **Dashboard**: The UI will automatically open at [http://127.0.0.1:8001/docs](http://127.0.0.1:8001/docs)
 - **Direct CLI Run**: `python main_v2.py "Your Query"`
 
 ##  Key Features
