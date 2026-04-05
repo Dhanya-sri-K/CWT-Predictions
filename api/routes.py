@@ -20,7 +20,7 @@ app = FastAPI(
 def open_browser():
     """Wait for server to start and then open the browser."""
     time.sleep(1.5)
-    webbrowser.open("http://127.0.0.1:8000/docs")
+    webbrowser.open("http://127.0.0.1:8001/docs")
 
 @app.on_event("startup")
 def startup_event():
@@ -30,10 +30,10 @@ def startup_event():
 # --- Pydantic Models for Structured Intelligence ---
 
 class TraderMetrics(BaseModel):
-    roi: float = Field(..., description="Return on Investment (percentage)")
-    win_rate: float = Field(..., description="Percentage of successful trades")
-    consistency: float = Field(..., description="Score 0-1 representing trade frequency and success stability")
-    risk_score: float = Field(..., description="Score 0-1 representing volatility and exposure")
+    roi: Optional[float] = Field(None, description="Return on Investment (percentage)")
+    win_rate: Optional[float] = Field(None, description="Percentage of successful trades")
+    consistency: Optional[float] = Field(None, description="Score 0-1 representing trade frequency and success stability")
+    risk_score: Optional[float] = Field(None, description="Score 0-1 representing volatility and exposure")
 
 class TopTrader(BaseModel):
     wallet: str
@@ -62,19 +62,41 @@ backtest_service = BacktestService()
 def read_root():
     return {"message": "Welcome to the Prediction Market Intelligence Engine v2"}
 
+def safe_json_parse(text: str):
+    """Clean LLM output and parse JSON."""
+    raw = text.strip()
+    if raw.startswith("```json"):
+        raw = raw.replace("```json", "", 1)
+    if raw.endswith("```"):
+        raw = raw.rsplit("```", 1)[0]
+    return json.loads(raw.strip())
+
 @app.post("/recommend-trader", response_model=IntelligenceReport, tags=["Intelligence"])
 def recommend_trader(query: UserQuery):
     """
-    Returns a structured intelligence report with a ranked list of top 3 traders, 
-    detailed metrics, and market context.
+    Returns a structured intelligence report with a ranked list of top 3 traders.
     """
     try:
         logger.info(f"Intelligence Request: {query.prompt}")
-        # This will now return a JSON string from DecisionAgent
         raw_response = decision_agent.recommend(query.prompt)
         
-        # Parse the JSON string into our model
-        data = json.loads(raw_response)
+        # 1. Safe Parse
+        data = safe_json_parse(raw_response)
+        logger.info(f"[API] Parsed LLM Data: {data}")
+        
+        # 2. Sanitize metrics (Fix: Input should be a valid dictionary)
+        if "top_traders" in data and isinstance(data["top_traders"], list):
+            for trader in data["top_traders"]:
+                if isinstance(trader, dict):
+                    # If metrics is a list or not a dict, reset it to empty dict
+                    if "metrics" in trader and not isinstance(trader["metrics"], dict):
+                        logger.warning(f"Fixing invalid metrics type ({type(trader['metrics'])}) for {trader.get('username')}")
+                        trader["metrics"] = {} 
+                    # If metrics is missing, add empty dict (better for Pydantic)
+                    if "metrics" not in trader:
+                        trader["metrics"] = {}
+        
+        logger.info(f"[API] Final Sanitized Data: {data}")
         return data
     except Exception as e:
         logger.exception("Error in /recommend-trader")
@@ -112,4 +134,4 @@ def backtest_trader(wallet: str, days: int = 30):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

@@ -53,14 +53,31 @@ class DecisionAgent(BaseAgent):
         User wants to know: {query}
         Relevant traders from Knowledge Base: {similar_traders}
         
-        Return a JSON object containing:
-        - query: the user query
-        - confidence_score: your confidence in this recommendation (0.0 to 1.0)
-        - top_traders: list of top 3 traders, each with wallet, username, metrics (roi, win_rate, consistency, risk_score), and explanation.
-        - market_context: real-world news or sentiment context.
-        - recommendation_summary: a concise final verdict.
+        CRITICAL: RETURN ONLY VALID JSON. DO NOT INCLUDE ANY MARKDOWN CODE BLOCKS OR TEXT AROUND THE JSON.
         
-        ONLY return the raw JSON string.
+        JSON Structure:
+        {{
+            "query": "{query}",
+            "confidence_score": 0.95,
+            "top_traders": [
+                {{
+                    "wallet": "trader_address",
+                    "username": "trader_name",
+                    "metrics": {{
+                        "roi": 10.5,
+                        "win_rate": 70.0,
+                        "consistency": 0.8,
+                        "risk_score": 0.2
+                    }},
+                    "explanation": "why this trader fits the query"
+                }}
+            ],
+            "market_context": "Real-world context (news/sentiment) affecting this market",
+            "recommendation_summary": "Concise summary of the advice"
+        }}
+        
+        IMPORTANT: "metrics" MUST be an OBJECT with NUMERIC keys. DO NOT provide a list like ["ROI", "consistency"]. Use numbers (0-100 or 0-1) for values.
+        ONLY return the raw JSON string. Do not use markdown backticks.
         """
         response = self.run(prompt)
         return response

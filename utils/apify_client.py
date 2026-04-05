@@ -29,22 +29,46 @@ class ApifyWrapper:
     def search_polymarket_leaderboard(self, time_range="all", leaderboard_type="profit"):
         """
         Uses saswave/polymarket-leaderboard-scraper
-        Fixed input schema to avoid 'NoneType' split errors
+        Fixed input mapping based on actor schema
         """
+        # Map to actor specific values
+        type_map = {"profit": "PNL", "volume": "VOL"}
+        
+        # leaderboard_rangedate: all, month, week, day
+        actor_range = time_range.lower() if time_range.lower() in ["all", "month", "week", "day"] else "all"
+        actor_type = type_map.get(leaderboard_type.lower(), "PNL")
+
         run_input = {
-            "period": time_range,
-            "type": leaderboard_type,
-            "leaderboard_section": leaderboard_type  # Common field for this actor
+            "leaderboard_rangedate": actor_range,
+            "leaderboard_section": actor_type,
+            "max_results": 10,
+            "leaderboard_categories": "overall"
         }
         return self.run_actor("saswave/polymarket-leaderboard-scraper", run_input)
 
-    def search_kalshi_markets(self, limit=10):
+    def search_polymarket_web(self, query="top traders on polymarket"):
         """
-        Uses a generic Kalshi scraper or search
+        Robust fallback: Search the web and extract trader info
         """
-        # Using a representative actor if one exists or fallback
-        # For now, let's assume a generic one or search
+        logger.info(f"[ApifyWrapper] Using web search fallback for discovery: {query}")
+        return self.run_actor("apify/google-search-scraper", {"queries": query})
+
+    def search_polymarket_leaderboard(self, time_range="all", leaderboard_type="profit"):
+        """
+        Uses saswave/polymarket-leaderboard-scraper
+        Fixed input mapping based on actor schema
+        """
+        # Map to actor specific values
+        type_map = {"profit": "PNL", "volume": "VOL"}
+        
+        # leaderboard_rangedate: all, month, week, day
+        actor_range = time_range.lower() if time_range.lower() in ["all", "month", "week", "day"] else "all"
+        actor_type = type_map.get(leaderboard_type.lower(), "PNL")
+
         run_input = {
-            "limit": limit
+            "leaderboard_rangedate": actor_range,
+            "leaderboard_section": actor_type,
+            "max_results": 10,
+            "leaderboard_categories": "overall"
         }
-        return self.run_actor("apify/google-search-scraper", {"queries": ["site:kalshi.com markets"]})
+        return self.run_actor("saswave/polymarket-leaderboard-scraper", run_input)
